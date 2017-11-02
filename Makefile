@@ -12,7 +12,7 @@ $(TARGET):src/$(PROG).cpp
 	$(CC) $(CFLAGS) -c src/traffic.cpp -o lib/traffic.o
 	$(CC) $(CFLAGS) -c src/Database.cpp -o lib/Database.o
 	$(CC) $(CFLAGS) -c src/tfstat.cpp -o lib/tfstat.o
-	$(CC) $(CFLAGS) lib/Common.o lib/traffic.o lib/Database.o lib/tfstat.o -o main
+	$(CC) $(CFLAGS) lib/Common.o lib/traffic.o lib/Database.o lib/tfstat.o -o main.out
 clean:
 	$(RM) main
 	$(RM) lib/Common.o
