@@ -7,7 +7,7 @@ tfstat is meant to overcome some of the shortcomings of current UNIX-based traff
 # Usage
 Currently tfstat is in a pre-alpha phase.  It has the basic functionality to work on Linux, however lacks the ability to grab traffic data on bsd-based systems.  Furthermore, most command line inputs are ignored and the program simply runs per the specified values in src/defaults.hpp.  
 
-For these reasons, I do not reccommend using tfstat in its current state beyond testing functionality.
+For these reasons, I do not reccommend using tfstat in its current state beyond testing functionality.  The code requires the user to rewrite/recompile the src/tfstat.cpp file in order to test the traffic monitoring functionality.  There is a large block of code commented out in the `main` function which can be uncommented for testing.
 
 # Storage Methods
 tfstat uses a database-type method of storing historical data.  When an interface's network stats are being saved, tfstat generates both a database file and a table file.  The database file is never loaded into memory in full because it may cause issues depending on the size.  While the table file is only about 50% smaller, it is easier to manage in memory.  
