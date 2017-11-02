@@ -9,7 +9,6 @@ STATS_ GetDeltaState(STATS_ Last, std::string iface);
 std::vector<IFACE_STAT> InitIface();
 std::vector<std::string> FindInterfaces(std::string data); //REQ data=PROC_NET_DEV;
 bool ReadNetStat();
-//std::vector<std::string> FindInterfaces();
 #elif defined(__freebsd__)
 
 #endif

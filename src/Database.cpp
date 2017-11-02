@@ -1,8 +1,6 @@
 #include "Common.hpp"
 #include "Database.hpp"
 
-//Error handle? [200~https://gehrcke.de/2011/06/reading-files-in-c-using-ifstream-dealing-correctly-with-badbit-failbit-eofbit-and-perror/
-
 bool operator<(DBASE_ENTRY a, const DBASE_ENTRY b) {return (a.TimeVal < b.TimeVal);};
 bool operator>(DBASE_ENTRY a, const DBASE_ENTRY b) {return (a.TimeVal < b.TimeVal);};
 bool operator<=(DBASE_ENTRY a, const DBASE_ENTRY b) {return (a.TimeVal < b.TimeVal);};
@@ -121,7 +119,7 @@ bool SaveDBK(std::string Location, std::vector<DBASE_ENTRY> vals, bool FailOnHis
     return true;
 }
 
-//FIXME: do a case for time1 == time2 and also FIGURE OUT WHY IT'S SAVING SO DAMN MANY!
+//FIXME: do a case for time1 == time2 and also FIGURE OUT WHY IT'S SAVING SO MANY!
 std::vector<DBASE_ENTRY> SaveToDB(std::string Location, std::string DBK_Location, TFSTATS entry, std::vector<DBASE_ENTRY> dbk)
 {
     std::fstream f;
@@ -177,12 +175,6 @@ std::vector<DBASE_ENTRY> SaveToDB(std::string Location, std::string DBK_Location
     f.close();
 
     return dbk;
-    
-    
-    //Save a rolling structure (oldest -> newest then overwrite oldest)
-    //NEED TO HAVE TIME_ + long uint -> about 14 bytes per entry in dbase -> tells us the time and location of each entry; //see DBK above)
-    //The full TFSTATS file will contain everything - we only have data for the current values, we need to consult database for more info otherwise.
-    //When we need a value, we will seek based on our database keyset that is generated.
 }
 
 void DumpDatabase(std::string Location)

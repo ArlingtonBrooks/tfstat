@@ -78,54 +78,6 @@ printf("%d TST\n",ret.b_rcv);
     return ret - Last;
 }
 
-//Automatically build list of interfaces/
-/*std::vector<std::string> FindInterfaces()
-{
-    std::ifstream f;
-    f.open("/proc/net/dev",std::ifstream::in);
-    std::vector<std::string> interfaces;
-
-    while (f.good())
-    {
-        char buffer[256];
-        f.getline(buffer,255);
-        bool IsHeader = false;
-
-        for (int i = 0; i < 256; i++)
-            if (buffer[i] == '|')
-            {
-                IsHeader = true;
-                break;
-            }
-            else if (buffer[i] == NULL)
-                break;
-        if (IsHeader)
-            continue;
-
-        std::string tmp;
-        bool IsValid = false;
-        for (int i = 0; i < 256; i++)
-        {
-            if (buffer[i] != ':' && buffer[i] != ' ')
-            {
-                tmp += buffer[i];
-            }
-            else if (buffer[i] == ':')
-            {
-                IsValid = true;
-                break;
-            }
-            if (buffer[i] == '\0' || buffer[i] == NULL || buffer[i] == '\n')
-                break;
-        }
-        if (IsValid)
-            interfaces.push_back(tmp);
-    }
-
-    f.close();
-    return interfaces;
-}*/
-
 std::vector<IFACE_STAT> InitIface()
 {
     std::vector<IFACE_STAT> ret;

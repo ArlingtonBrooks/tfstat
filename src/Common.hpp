@@ -34,7 +34,6 @@ TIME_ GetTimeNow();
 bool MakeFile(std::string Filename);
 
 //Stats struct
-//NB: pkors *should* always be zero.
 struct STATS_{
     long unsigned int b_rcv;
     long unsigned int b_tx;

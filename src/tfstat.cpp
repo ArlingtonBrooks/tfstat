@@ -36,13 +36,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #include <csignal>
 #include "Common.hpp"
-//#include "Common.cpp"
 #include "tfstat.hpp"
 #include "traffic.hpp"
 #include "defaults.hpp"
 #include "Signals.cpp"
 #include "Database.hpp"
-//#include "traffic.cpp" //rem;
 
 #if defined(__linux__) || defined(__linux) || defined(linux)
 PROCNET PROC_NET_DEV = {"",false};
@@ -53,16 +51,14 @@ bool SetProcLock(bool state)
         while (PROC_NET_DEV.LOCK && iter < 100000000)
             iter++;
     if (iter >= 100000000-1)
+    {
         fprintf(stderr,"Failed to lock /proc/net/dev\n");
+        return false;
+    }
     PROC_NET_DEV.LOCK = state;
+    return state;
 }
 #endif
-
-/*
- * Theoretical storage requirements:
- * 5 years taking 1 value per minute: Each point generates about a 64-byte structure
- * results in 168192000 bytes used, or about 168 Megabytes.
-*/
 
 int main (int argc, char** argv)
 {
@@ -98,7 +94,7 @@ int main (int argc, char** argv)
         for (int i = 0; i < Statlist.size(); i++)
         {
             if (Statlist[i].Active)
-            {//FIXME: when do we update statlist?
+            {
                 TFSTATS st = {GetState(Statlist[i].Iface),GetTimeNow()};
                 if (Databases[i].size() > 0)
                 {
@@ -141,7 +137,7 @@ printf("DBS: %d\n",Databases[i].size());
  * Parse Options
  * --help: print quick help reference
  * --print-all: Print all stored data
- * -tl: use local time
+ * -tl: print local time
  * -h xx: print past xx hours
  * -d xx: print past xx days
  * -w xx: print past xx weeks
@@ -252,6 +248,7 @@ bool ParseArgs(int argc, char** argv)
     }
 }
 
+//Returns 'true' if all values contained in str are between val_low and val_hi.
 bool CheckStrValues(const char* str, char val_low, char val_hi)
 {
     int j = 0;
@@ -266,115 +263,8 @@ bool CheckStrValues(const char* str, char val_low, char val_hi)
     return true;
 }
 
-/*TIME_ GetTimeNow()
-{
-    time_t Cur = time(0);
-    struct tm *ptm;
-    ptm = gmtime(&Cur);
-    if (DEBUG)
-        fprintf(stderr,"Got time: \nYR: %d, MO: %d, DA: %d, HR: %d\n",ptm->tm_year,ptm->tm_mon,ptm->tm_mday,ptm->tm_hour);
-    TIME_ ret;
-    ret.year = ptm->tm_year;
-    ret.month = ptm->tm_mon;
-    ret.day = ptm->tm_mday;
-    ret.hour = ptm->tm_hour;
-    ret.minute = ptm->tm_min;
-    return ret;
-}*/
-
-/*#if defined(__linux__) || defined(__linux) || defined(linux)
-//Update PROC_NET_DEV;
-bool ReadNetStat()
-{
-    if (DEBUG)
-        fprintf(stderr,"Reading network status\n");
-    std::fstream f;
-    f.open("/proc/net/dev",std::fstream::in);
-
-    SetProcLock(true);
-    PROC_NET_DEV.str.clear();
-
-    while (f.good()) //FIXME: another way to avoid errors?
-    {
-        PROC_NET_DEV.str += f.get();
-    }
-    SetProcLock(false);
-
-    if (DEBUG)
-        fprintf(stderr,"Read network status: \n",PROC_NET_DEV.str.c_str());
-
-    f.close();
-
-    return true;
-}
-#endif*/
-
-//Automatically build list of interfaces/
-/*std::vector<std::string> FindInterfaces(std::string data)
-{
-    if (DEBUG)
-        fprintf(stderr,"Scanning for interfaces...\n");
-    std::istringstream f(data);
-    std::vector<std::string> interfaces;
-
-    while (f.good()) //FIXME: another way to avoid errors?
-    {
-        char buffer[256];
-        f.getline(buffer,255);
-        bool IsHeader = false;
-
-        for (int i = 0; i < 256; i++)
-            if (buffer[i] == '|')
-            {
-                IsHeader = true;
-                break;
-            }
-            else if (buffer[i] == NULL)
-                break;
-        if (IsHeader)
-            continue;
-
-        std::string tmp;
-        bool IsValid = false;
-        for (int i = 0; i < 256; i++)
-        {
-            if (buffer[i] != ':' && buffer[i] != ' ')
-            {
-                tmp += buffer[i];
-            }
-            else if (buffer[i] == ':')
-            {
-                IsValid = true;
-                break;
-            }
-            if (buffer[i] == '\0' || buffer[i] == NULL || buffer[i] == '\n')
-                break;
-        }
-        if (IsValid)
-            interfaces.push_back(tmp);
-    }
-
-    if (DEBUG)
-        fprintf(stderr,"Found %d interfaces\n",interfaces.size());
-
-    return interfaces;
-}*/
-
 void RefreshWait()
 {
     timespec TS = REFRESH;
     clock_nanosleep(CLOCK_MONOTONIC,0,&TS,NULL);
 }
-
-/*bool LoadDB(std::string Location, std::vector<TFSTATS> *DB)
-{
-    return true;
-}
-
-bool SaveDB(std::string Location, std::vector<TFSTATS> DB)
-{
-    //Save a rolling structure (oldest -> newest then overwrite oldest)
-    //NEED TO HAVE TIME_ + long uint -> about 14 bytes per entry in dbase -> tells us the time and location of each entry;
-    //should be ~7M of ram for 5 years of data taken every 5 mins;
-    return true;
-}*/
