@@ -290,41 +290,68 @@ void ReadCFG(const char* FNAME)
         }
 
         std::string PName, PParam;
+        if (PParam.compare(" ") == 0)
+            PParam = "";
         //Read parameter name:
         PName = GetLine(f,CfgDelim);
         PParam = GetLine(f,CfgDelim);
 
         if (PName.compare("REFRESH_TIME") == 0)
         {
-            //Read Refresh Interval (sec)
+            int sec,nsec;
+            sscanf(PParam.c_str()," %d , %d ",&sec,&nsec);
+            REFRESH = {sec,nsec};
         }
         else if (PName.compare("SAVE_INTERVAL") == 0)
         {
-            //Read 'Delta' (TIME_)
+            int yy,mm,dd,hh,mim;
+            sscanf(PParam.c_str()," %d , %d , %d , %d , %d ",&yy,&mm,&dd,&hh,&mim);
+            Delta = {yy - 1900, mm, dd, hh, mim};
         }
         else if (PName.compare("SAVE_HISTORY") == 0)
         {
-            //Read 'History' (TIME_)
+            int yy,mm,dd,hh,mim;
+            sscanf(PParam.c_str()," %d , %d , %d , %d , %d ",&yy,&mm,&dd,&hh,&mim);
+            History = {yy - 1900, mm, dd, hh, mim};
         }
         else if (PName.compare("BASE_DIR") == 0)
         {
-            //Read BaseDir
+            Base_Dir = PParam;
         }
         else if (PName.compare("USE_BITS") == 0)
         {
-            //Read Use Bit Convert
+            if (PParam.compare("1") == 0)
+                BitConvert = true;
+            else if (PParam.compare("0") == 0)
+                BitConvert = false;
+            else
+                printf("Problem reading parameter 'USE_BITS' = %s\n",PParam.c_str());
         }
         else if (PName.compare("SAVE_ALL") == 0)
         {
-            //Read SaveAll
+            if (PParam.compare("1") == 0)
+                SaveAll = true;
+            else if (PParam.compare("0") == 0)
+                SaveAll = false;
+            else
+                printf("Problem reading parameter 'SAVE_ALL' = %s\n",PParam.c_str());
         }
         else if (PName.compare("IFACE_LIST") == 0)
         {
+            if (PParam.compare("all") == 0 || PParam.compare("") == 0)
+            {
+                //ALL INTERFACES
+            }
             //Read Interface List (default: blank/all;  Separate by commas)
         }
         else if (PName.compare("COMPRESS_DBASE") == 0)
         {
             //Read DBase Compression (Not Implemented!)
+            fprintf(stderr,"Database Compression not implemented: %s\n",PParam.c_str());
+        }
+        else if (PName.compare("CONFIG_FILE") == 0)
+        {
+            printf("Why are you re-specifying the LOCATION OF THE \\\\CONFIG FILE// *HERE*???\n");
         }
         else
         {
