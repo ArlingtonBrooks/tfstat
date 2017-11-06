@@ -268,3 +268,104 @@ void RefreshWait()
     timespec TS = REFRESH;
     clock_nanosleep(CLOCK_MONOTONIC,0,&TS,NULL);
 }
+
+void ReadCFG(const char* FNAME)
+{
+    std::fstream f;
+    f.open(FNAME,std::ios::in);
+    if (!f)
+    {
+        fprintf(stderr,"ERROR: Unable to load configuration at %s.  Continuing with default values...\n",FNAME);
+        return;
+    }
+
+    while (f.good()) //TODO: reliability;
+    {
+        char C = f.get();
+        //Skip comment lines;
+        if (C == '#')
+        {
+            f.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+            continue;
+        }
+
+        std::string PName, PParam;
+        //Read parameter name:
+        PName = GetLine(f,CfgDelim);
+        PParam = GetLine(f,CfgDelim);
+
+        if (PName.compare("REFRESH_TIME") == 0)
+        {
+            //Read Refresh Interval (sec)
+        }
+        else if (PName.compare("SAVE_INTERVAL") == 0)
+        {
+            //Read 'Delta' (TIME_)
+        }
+        else if (PName.compare("SAVE_HISTORY") == 0)
+        {
+            //Read 'History' (TIME_)
+        }
+        else if (PName.compare("BASE_DIR") == 0)
+        {
+            //Read BaseDir
+        }
+        else if (PName.compare("USE_BITS") == 0)
+        {
+            //Read Use Bit Convert
+        }
+        else if (PName.compare("SAVE_ALL") == 0)
+        {
+            //Read SaveAll
+        }
+        else if (PName.compare("IFACE_LIST") == 0)
+        {
+            //Read Interface List (default: blank/all;  Separate by commas)
+        }
+        else if (PName.compare("COMPRESS_DBASE") == 0)
+        {
+            //Read DBase Compression (Not Implemented!)
+        }
+        else
+        {
+            fprintf(stderr,"Error: unable to parse config option '%s'\n",PName.c_str());
+            OneShot = true;
+            return;
+        }
+    }
+}
+
+std::string GetLine(std::fstream& f,char* delim = NULL)
+{
+    std::string ret;
+    char Buffer = f.get();
+    bool LOOP = true;
+
+    if (delim != NULL) //check for delimiter
+    {
+        int i = 0;
+        while (delim[i] != '\0')
+        {
+            if (Buffer == delim[i])
+                LOOP = false;
+            i++;
+        }
+    }
+
+    while (f.good() && Buffer != EOF && LOOP) //TODO: more reliable
+    {
+        ret += Buffer;
+        Buffer = f.get();
+        if (delim != NULL) //check for delimiter
+        {
+            int i = 0;
+            while (delim[i] != '\0')
+            {
+                if (Buffer == delim[i])
+                    LOOP = false;
+                i++;
+            }
+        }
+    }
+    return ret;
+}

@@ -15,7 +15,12 @@ std::string Base_DBase_Loc = "tfstat.db"; //"/var/db/tfstat.db"; //actual databa
 std::string DBase_Ext = ".db";
 std::string DBase_Key_Ext = ".tbl";
 
+char CfgDelim[] = {'#','='};
+
+std::vector<std::string> IFaceList;
+
 bool BitConvert = false; //convert from bytes to bits;
 bool OneShot = false;
+bool SaveAll = true;
 
 #endif

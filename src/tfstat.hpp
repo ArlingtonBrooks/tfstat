@@ -24,8 +24,10 @@ bool ParseArgs(int argc, char** argv);
 bool CheckStrValues(const char* str, char val_low, char val_hi);
 TIME_ GetTimeNow();
 void RefreshWait();
+void ReadCFG(const char*);
+std::string GetLine(std::fstream& f,char* delim);
 
-bool LoadDB(std::string Location, std::vector<TFSTATS> *DB);
-bool SaveDB(std::string Location, std::vector<TFSTATS> DB);
+//bool LoadDB(std::string Location, std::vector<TFSTATS> *DB);
+//bool SaveDB(std::string Location, std::vector<TFSTATS> DB);
 
 #endif
