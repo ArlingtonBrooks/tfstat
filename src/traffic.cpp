@@ -84,28 +84,52 @@ std::vector<IFACE_STAT> InitIface() //TODO: this needs to init ONLY the desired 
     
     ReadNetStat();
 
+    //Get list of available interfaces;
     std::vector<std::string> IfaceNames = FindInterfaces(PROC_NET_DEV.str);
     TIME_ tm = GetTimeNow();
-    std::vector<TFSTATS> st;
+    //std::vector<TFSTATS> st;
     for (int i = 0; i < IfaceNames.size(); i++)
     {
-        STATS_ tmp = GetState(IfaceNames[i]);
-        TFSTATS tmpst;
+        //If: IfaceNames[i] == IFaceList[x]:
+        STATS_ tmp = GetState(IfaceNames[i]); //List of interfaces
+        TFSTATS tmpst; 
+        IFACE_STAT tmpstat; 
+
         tmpst.Statlist = tmp;
         tmpst.DateTimeZulu = tm;
-        st.push_back(tmpst);
+
+        tmpstat.Data = tmpst;
+        tmpstat.Iface = IfaceNames[i];
+
+        ret.push_back(tmpstat);
+        //st.push_back(tmpst);
     }
 
-    if (st.size() != IfaceNames.size())
-        return ret;
+    if (ret.size() != IFaceList.size())
+    {
+        for (int i = 0; i < IFaceList.size(); i++)
+        {
+            for (int j = 0; j < ret.size(); j++)
+            {
+                if (ret[j].Iface.compare(IFaceList[i]) == 0)
+                {
+                    break;
+                }
+                if (j == ret.size() - 1)
+                    fprintf(stderr,"WARNING: Unable to open interface '%s'\n",IFaceList[i]);
+            }
+        }
+        //Figure out which which list item is missing
+        //Print error re: interface not found;
+    }
 
-    for (int i = 0; i < IfaceNames.size(); i++)
+    /*for (int i = 0; i < st.size(); i++)
     {
         IFACE_STAT tmp;
         tmp.Data = st[i];
         tmp.Iface = IfaceNames[i];
         ret.push_back(tmp);
-    }
+    }*/
     return ret;
 }
 
@@ -195,7 +219,7 @@ std::vector<std::string> FindInterfaces(std::string data)
 
 //Search for text within another string;
 //return -1 if failed.
-int FindInString(const char* searchtext, const char* searchfor, bool ExactMatch, const char* ignores)//FIXME
+int FindInString(const char* searchtext, const char* searchfor, bool ExactMatch, const char* ignores)//FIXME? -> Common.hpp
 {
     int i = 0;
     if (searchtext == NULL || searchfor == NULL)
