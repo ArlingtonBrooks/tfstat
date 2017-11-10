@@ -78,7 +78,7 @@ printf("%d TST\n",ret.b_rcv);
     return ret - Last;
 }
 
-std::vector<IFACE_STAT> InitIface()
+std::vector<IFACE_STAT> InitIface() //TODO: this needs to init ONLY the desired interfaces;
 {
     std::vector<IFACE_STAT> ret;
     

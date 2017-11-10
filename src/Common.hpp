@@ -70,4 +70,6 @@ extern std::string DBase_Loc;
 extern std::string DBase_Key_Loc;
 extern bool BitConvert;
 
+std::vector<std::string> ParseStrList(std::string list, const char* delim);
+
 #endif

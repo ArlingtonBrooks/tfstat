@@ -179,3 +179,29 @@ TIME_ GetTimeNow()
     ret.minute = ptm->tm_min;
     return ret;
 }
+
+std::vector<std::string> ParseStrList(std::string list, const char* delim)
+{
+    std::vector<std::string> ret;
+    std::string tmp;
+    for (int i = 0; i < list.length(); i++)
+    {
+        bool skip = false;
+        int j = 0;
+        while (delim[j] != '\0')
+        {
+            if (list[i] == delim[j])
+                skip = true;
+            j++;
+        }
+        if (!skip)
+            tmp += list[i];
+        else
+        {
+            ret.push_back(tmp);
+            tmp.clear();
+        }
+    }
+    ret.push_back(tmp);
+    return ret;
+}

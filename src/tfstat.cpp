@@ -67,7 +67,7 @@ int main (int argc, char** argv)
     bool Running = true;
     std::vector<IFACE_STAT> Statlist;
 
-    Statlist = InitIface();
+    Statlist = InitIface(); //TODO: Pass IFaceList for init;
 //    ReadNetStat();
 //    GetState("enp2s0");
 
@@ -249,7 +249,7 @@ bool ParseArgs(int argc, char** argv)
 }
 
 //Returns 'true' if all values contained in str are between val_low and val_hi.
-bool CheckStrValues(const char* str, char val_low, char val_hi)
+bool CheckStrValues(const char* str, char val_low, char val_hi) //TODO: ->Common.hpp
 {
     int j = 0;
     while (str[j] != NULL)
@@ -263,7 +263,7 @@ bool CheckStrValues(const char* str, char val_low, char val_hi)
     return true;
 }
 
-void RefreshWait()
+void RefreshWait() //TODO: ->Common.hpp
 {
     timespec TS = REFRESH;
     clock_nanosleep(CLOCK_MONOTONIC,0,&TS,NULL);
@@ -340,9 +340,13 @@ void ReadCFG(const char* FNAME)
         {
             if (PParam.compare("all") == 0 || PParam.compare("") == 0)
             {
-                //ALL INTERFACES
+                IFaceList.push_back("all");
             }
-            //Read Interface List (default: blank/all;  Separate by commas)
+            else
+            {
+                //Read comma-separated interface names;
+                IFaceList = ParseStrList(PParam,",");
+            }
         }
         else if (PName.compare("COMPRESS_DBASE") == 0)
         {
@@ -357,12 +361,14 @@ void ReadCFG(const char* FNAME)
         {
             fprintf(stderr,"Error: unable to parse config option '%s'\n",PName.c_str());
             OneShot = true;
+            f.close();
             return;
         }
     }
+    f.close();
 }
 
-std::string GetLine(std::fstream& f,char* delim = NULL)
+std::string GetLine(std::fstream& f,char* delim = NULL) //TODO: ->Common.hpp
 {
     std::string ret;
     char Buffer = f.get();
