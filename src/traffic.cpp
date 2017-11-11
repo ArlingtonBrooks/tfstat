@@ -90,7 +90,15 @@ std::vector<IFACE_STAT> InitIface() //TODO: this needs to init ONLY the desired 
     //std::vector<TFSTATS> st;
     for (int i = 0; i < IfaceNames.size(); i++)
     {
-        //If: IfaceNames[i] == IFaceList[x]:
+        bool IsValid = false;
+        for (int j = 0; j < IFaceList.size(); j++)
+        {
+            if (IFaceList[j].compare(IfaceNames[i]) == 0 || IFaceList[j].compare("all") == 0)
+            {
+                IsValid = true;
+                break;
+            }
+        }
         STATS_ tmp = GetState(IfaceNames[i]); //List of interfaces
         TFSTATS tmpst; 
         IFACE_STAT tmpstat; 
@@ -100,12 +108,12 @@ std::vector<IFACE_STAT> InitIface() //TODO: this needs to init ONLY the desired 
 
         tmpstat.Data = tmpst;
         tmpstat.Iface = IfaceNames[i];
+        tmpstat.Active = IsValid;
 
         ret.push_back(tmpstat);
-        //st.push_back(tmpst);
     }
 
-    if (ret.size() != IFaceList.size())
+    if (ret.size() > IFaceList.size() && IFaceList[0].compare("all") != 0)
     {
         for (int i = 0; i < IFaceList.size(); i++)
         {
@@ -116,7 +124,7 @@ std::vector<IFACE_STAT> InitIface() //TODO: this needs to init ONLY the desired 
                     break;
                 }
                 if (j == ret.size() - 1)
-                    fprintf(stderr,"WARNING: Unable to open interface '%s'\n",IFaceList[i]);
+                    fprintf(stderr,"WARNING: Unable to open interface '%s'\n",IFaceList[i].c_str());
             }
         }
         //Figure out which which list item is missing
@@ -153,11 +161,13 @@ bool ReadNetStat()
 //        char ii = f.get();
 //        printf("%c",ii);
         PROC_NET_DEV.str += f.get();
+        if (PROC_NET_DEV.str.back() == EOF)
+            PROC_NET_DEV.str.pop_back();
     }
     SetProcLock(false);
 
     if (DEBUG)
-        fprintf(stderr,"Read network status: \n",PROC_NET_DEV.str.c_str());
+        fprintf(stderr,"Read network status (%d): %s \n",PROC_NET_DEV.str.length(),PROC_NET_DEV.str.c_str());
 
     f.close();
 
@@ -192,7 +202,7 @@ std::vector<std::string> FindInterfaces(std::string data)
         bool IsValid = false;
         for (int i = 0; i < 256; i++)
         {   
-            if (buffer[i] != ':' && buffer[i] != ' ')
+            if (buffer[i] != ':' && buffer[i] != ' ' && buffer[i] != '\0')
             {   
                 tmp += buffer[i];
             }
@@ -201,7 +211,7 @@ std::vector<std::string> FindInterfaces(std::string data)
                 IsValid = true;
                 break;
             }
-            if (buffer[i] == '\0' || buffer[i] == NULL || buffer[i] == '\n')
+            if (buffer[i] == '\0' || buffer[i] == '\n' || buffer[i] == EOF)
                 break;
         }
         if (IsValid)

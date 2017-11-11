@@ -8,7 +8,7 @@ timespec REFRESH = {10,0};//seconds between refresh - should be an integer divis
 TIME_ Delta = {0,0,0,0,2}; //Length of time before commiting a value to database.
 TIME_ History = {0,0,0,1,0}; //Length of time to keep any given value;  Y/M/D/H/Mi
 
-#define CFGFILE = "/etc/tfstat.conf"
+#define CFGFILE "/etc/tfstat.conf"
 //MAKE THIS 1 FILE PER INTERFACE!
 std::string Base_Dir = "./";
 std::string Base_DBase_Loc = "tfstat.db"; //"/var/db/tfstat.db"; //actual database

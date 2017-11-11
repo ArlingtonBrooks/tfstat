@@ -63,6 +63,7 @@ bool SetProcLock(bool state)
 int main (int argc, char** argv)
 {
     DEBUG = true;
+    ReadCFG(CFGFILE);
     ParseArgs(argc,argv);
     bool Running = true;
     std::vector<IFACE_STAT> Statlist;
@@ -77,9 +78,8 @@ int main (int argc, char** argv)
     SetExitHandler(SIGTERM);
     SetExitHandler(SIGINT);
     SetExitHandler(SIGQUIT);
-/*FIXME: Temporarily disabled program;
-    DumpDatabase("tfstat.dbenp2s0.db");
-    DumpKeys("tfstat.dbenp2s0.tbl");
+    //DumpDatabase("tfstat.dbenp2s0.db");
+    //DumpKeys("tfstat.dbenp2s0.tbl");
     
     std::vector<std::vector<DBASE_ENTRY>> Databases;
     for (int i = 0; i < Statlist.size(); i++)
@@ -127,7 +127,7 @@ printf("DBS: %d\n",Databases[i].size());
                 Databases[i] = SaveToDB(Base_Dir + Base_DBase_Loc + Statlist[i].Iface + DBase_Ext,Base_Dir + Base_DBase_Loc + Statlist[i].Iface + DBase_Key_Ext,st,Databases[i]);
             }
         }
-    }*/
+    }
     printf("SAVED\n");
     return EXIT_SUCCESS;
     //NEED LIST OF INTERFACES TO SCAN FOR!
@@ -276,6 +276,7 @@ void ReadCFG(const char* FNAME)
     if (!f)
     {
         fprintf(stderr,"ERROR: Unable to load configuration at %s.  Continuing with default values...\n",FNAME);
+        IFaceList.push_back("all");
         return;
     }
 
@@ -365,6 +366,8 @@ void ReadCFG(const char* FNAME)
             return;
         }
     }
+    if (IFaceList.size() < 1)
+        IFaceList.push_back("all");
     f.close();
 }
 
