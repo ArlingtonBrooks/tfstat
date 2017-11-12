@@ -79,6 +79,7 @@ int main (int argc, char** argv)
     SetExitHandler(SIGINT);
     SetExitHandler(SIGQUIT);
     //DumpDatabase("tfstat.dbenp2s0.db");
+    //DumpDatabase("tfstat.dblo.db");
     //DumpKeys("tfstat.dbenp2s0.tbl");
     
     std::vector<std::vector<DBASE_ENTRY>> Databases;

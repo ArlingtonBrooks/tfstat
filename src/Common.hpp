@@ -29,6 +29,8 @@ bool operator>(TIME_ t1, const TIME_ t2);
 bool operator<=(TIME_ t1, const TIME_ t2);
 bool operator<(TIME_ t1, const TIME_ t2);
 bool operator>=(TIME_ t1, const TIME_ t2);
+bool operator==(TIME_ t1, const TIME_ t2);
+bool operator!=(TIME_ t1, const TIME_ t2);
 
 TIME_ GetTimeNow();
 bool MakeFile(std::string Filename);
@@ -51,6 +53,9 @@ inline STATS_ operator-(const STATS_ &b, const STATS_ &a)
     return TMP;
 }
 
+bool operator==(const STATS_ s1, const STATS_ s2);
+bool operator!=(const STATS_ s1, const STATS_ s2);
+
 typedef struct {
     STATS_ Statlist;
     TIME_ DateTimeZulu;
@@ -69,6 +74,7 @@ extern TIME_ History;
 extern std::string DBase_Loc;
 extern std::string DBase_Key_Loc;
 extern bool BitConvert;
+extern bool SaveAll;
 extern std::vector<std::string> IFaceList;
 
 std::vector<std::string> ParseStrList(std::string list, const char* delim);

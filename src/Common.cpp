@@ -154,6 +154,26 @@ bool operator<=(TIME_ t1, const TIME_ t2)
     }
 }
 
+bool operator==(TIME_ t1, const TIME_ t2)
+{
+    return (t1.year == t2.year && t1.month == t2.month && t1.day == t2.day && t1.hour == t2.hour && t1.minute == t2.minute);
+}
+
+bool operator==(const STATS_ s1, const STATS_ s2)
+{
+    return (s1.b_rcv == s2.b_rcv && s1.b_tx == s2.b_tx && s1.pk_rcv == s2.pk_rcv && s1.pk_tx == s2.pk_tx);
+}
+
+bool operator!=(const STATS_ s1, const STATS_ s2)
+{
+    return !(s1 == s2);
+}
+
+bool operator!=(TIME_ t1, const TIME_ t2)
+{
+    return !(t1 == t2);
+}
+
 bool MakeFile(std::string Filename)
 {
     std::fstream f;

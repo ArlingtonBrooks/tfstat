@@ -134,9 +134,10 @@ std::vector<DBASE_ENTRY> SaveToDB(std::string Location, std::string DBK_Location
     if (dbk.size() > 0)
     {
         SortDBase(&dbk[0],dbk.size(),true);
+        unsigned int EndLoc = f.tellg();
         
         if (dbk.back().TimeVal - dbk.front().TimeVal > History)
-        {
+        {//FIXME This doesn't actually work;
             printf("HISTORY EXCEEDS\n");
             DBASE_ENTRY NewVal = dbk.front();
             NewVal.TimeVal = entry.DateTimeZulu;
@@ -149,18 +150,40 @@ std::vector<DBASE_ENTRY> SaveToDB(std::string Location, std::string DBK_Location
         else
         {
             printf("History not exceeded\n");
-            DBASE_ENTRY NewVal;
-            NewVal.TimeVal = entry.DateTimeZulu;
-            NewVal.SeekPos = f.tellg();
-            dbk.push_back(NewVal);
-
-            f.seekp(NewVal.SeekPos);
-            f.write((char*)&entry,sizeof(TFSTATS));
+            //TODO: if not writing repeat data, overwrite value.  Also: ensure time values do not overlap.
+            if (entry.DateTimeZulu != dbk.back().TimeVal)
+            {
+                TFSTATS LastVal;
+                f.seekp(dbk.back().SeekPos);
+                f.read((char*)&LastVal,sizeof(TFSTATS));
+                printf("Last: %ld,%ld,%ld,%ld\n",LastVal.Statlist.b_rcv,LastVal.Statlist.pk_rcv,LastVal.Statlist.b_tx,LastVal.Statlist.pk_tx);
+                printf("NEW: %ld,%ld,%ld,%ld\n",entry.Statlist.b_rcv,entry.Statlist.pk_rcv,entry.Statlist.b_tx,entry.Statlist.pk_tx);
+                
+                if (SaveAll || LastVal.Statlist != entry.Statlist)
+                {
+                    if (DEBUG)
+                        printf("NEW DATA: Saving to file\n");
+                    DBASE_ENTRY NewVal;
+                    NewVal.TimeVal = entry.DateTimeZulu;
+                    NewVal.SeekPos = EndLoc;
+                    dbk.push_back(NewVal);
+        
+                    f.seekp(NewVal.SeekPos);
+                    f.write((char*)&entry,sizeof(TFSTATS));
+                }
+                else if (DEBUG)
+                    printf("DEBUG: Not saving history due to stat overlap\n");
+            }
+            else
+                if (DEBUG)
+                    printf("DEBUG: Not saving history due to time overlap.\n");
         }
         SaveDBK(DBK_Location,dbk,false);
     }
     else
     {
+        if (DEBUG)
+            printf("Database key is null length;  Saving to file;\n");
         DBASE_ENTRY NewVal;
         NewVal.TimeVal = entry.DateTimeZulu;
         NewVal.SeekPos = (unsigned int)f.tellg() + sizeof(long unsigned int);
@@ -190,7 +213,7 @@ void DumpDatabase(std::string Location)
     printf("YYYYMMDDHHMM,Bytes RCV,Bytes TX,Packets RCV,Packets TX\n");
     f.seekp(sizeof(long unsigned int));
     TFSTATS Entry;
-    while (f.good())
+    while (f.good()) //FIXME: prints double at end of file;
     {
         f.read((char*)&Entry,sizeof(Entry));
         printf("%04d%02d%02d%02d%02d,",Entry.DateTimeZulu.year+1900, Entry.DateTimeZulu.month, Entry.DateTimeZulu.day, Entry.DateTimeZulu.hour, Entry.DateTimeZulu.minute); //Date
@@ -205,7 +228,7 @@ void DumpKeys(std::string Location)
     f.open(Location.c_str(),std::ios::in|std::ios::binary);
     f.seekp(sizeof(long unsigned int));
     DBASE_ENTRY DBE;
-    while (f.good())
+    while (f.good()) //FIXME: prints double at end of file;
     {
         f.read((char*)&DBE,sizeof(DBASE_ENTRY));
         printf("KEY: %lu at %02d:%02d on %d\n",DBE.SeekPos,DBE.TimeVal.hour,DBE.TimeVal.minute,DBE.TimeVal.day);
