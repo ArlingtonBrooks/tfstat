@@ -44,6 +44,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if defined(__linux__) || defined(__linux) || defined(linux)
 PROCNET PROC_NET_DEV = {"",false};
+
+/*
+SetProcLock
+*/
 bool SetProcLock(bool state)
 {
     int iter = 0;
@@ -136,20 +140,6 @@ printf("DBS: %d\n",Databases[i].size());
 
 /*
  * Parse Options
- * --help: print quick help reference
- * --print-all: Print all stored data
- * -tl: print local time
- * -h xx: print past xx hours
- * -d xx: print past xx days
- * -w xx: print past xx weeks
- * -m xx: print past xx months
- * -y xx: print past xx years
- * -s INTERFACE: print current database size on disk
- * -t xx: number of minutes to wait before grabbing usage data.  Default 5; //SAVES IN 5 MINUTE INTERVALS TO DATABASE
- * -p INTERFACE: dump all information from INTERFACE in CSV format
- * -i INTERFACE: activate INTERFACE capture
- * -x INTERFACE: Deactivate INTERFACE capture
- * To Be cont'd
 */
 bool ParseArgs(int argc, char** argv)
 {
@@ -249,7 +239,9 @@ bool ParseArgs(int argc, char** argv)
     }
 }
 
-//Returns 'true' if all values contained in str are between val_low and val_hi.
+/*
+CheckStrValues
+*/
 bool CheckStrValues(const char* str, char val_low, char val_hi) //TODO: ->Common.hpp
 {
     int j = 0;
@@ -264,12 +256,18 @@ bool CheckStrValues(const char* str, char val_low, char val_hi) //TODO: ->Common
     return true;
 }
 
+/*
+RefreshWait
+*/
 void RefreshWait() //TODO: ->Common.hpp
 {
     timespec TS = REFRESH;
     clock_nanosleep(CLOCK_MONOTONIC,0,&TS,NULL);
 }
 
+/*
+ReadCFG
+*/
 void ReadCFG(const char* FNAME)
 {
     std::fstream f;
@@ -372,6 +370,9 @@ void ReadCFG(const char* FNAME)
     f.close();
 }
 
+/*
+GetLine
+*/
 std::string GetLine(std::fstream& f,char* delim = NULL) //TODO: ->Common.hpp
 {
     std::string ret;

@@ -1,7 +1,13 @@
 #include "Common.hpp"
 
+/*
+Global debug variable
+*/
 bool DEBUG = false;
 
+/*
+TIME_ t1 > TIME_ t2
+*/
 bool operator>(TIME_ t1, const TIME_ t2)
 {
     if (t1.year > t2.year)
@@ -40,6 +46,9 @@ bool operator>(TIME_ t1, const TIME_ t2)
     }
 }
 
+/*
+TIME_ t1 < TIME_ t2
+*/
 bool operator<(TIME_ t1, const TIME_ t2)
 {
     if (t1.year > t2.year)
@@ -78,6 +87,9 @@ bool operator<(TIME_ t1, const TIME_ t2)
     }
 }
 
+/*
+TIME_ t1 >= TIME_ t2
+*/
 bool operator>=(TIME_ t1, const TIME_ t2)
 {
     if (t1.year > t2.year)
@@ -116,6 +128,9 @@ bool operator>=(TIME_ t1, const TIME_ t2)
     }
 }
 
+/*
+TIME_ t1 <= TIME_ t2
+*/
 bool operator<=(TIME_ t1, const TIME_ t2)
 {
     if (t1.year > t2.year)
@@ -154,26 +169,41 @@ bool operator<=(TIME_ t1, const TIME_ t2)
     }
 }
 
+/*
+TIME_ t1 == TIME_ t2
+*/
 bool operator==(TIME_ t1, const TIME_ t2)
 {
     return (t1.year == t2.year && t1.month == t2.month && t1.day == t2.day && t1.hour == t2.hour && t1.minute == t2.minute);
 }
 
-bool operator==(const STATS_ s1, const STATS_ s2)
-{
-    return (s1.b_rcv == s2.b_rcv && s1.b_tx == s2.b_tx && s1.pk_rcv == s2.pk_rcv && s1.pk_tx == s2.pk_tx);
-}
-
-bool operator!=(const STATS_ s1, const STATS_ s2)
-{
-    return !(s1 == s2);
-}
-
+/*
+TIME_ t1 != TIME_ t2
+*/
 bool operator!=(TIME_ t1, const TIME_ t2)
 {
     return !(t1 == t2);
 }
 
+/*
+STATS_ s1 == STATS_ s2
+*/
+bool operator==(const STATS_ s1, const STATS_ s2)
+{
+    return (s1.b_rcv == s2.b_rcv && s1.b_tx == s2.b_tx && s1.pk_rcv == s2.pk_rcv && s1.pk_tx == s2.pk_tx);
+}
+
+/*
+STATS_ s1 != STATS_ s2
+*/
+bool operator!=(const STATS_ s1, const STATS_ s2)
+{
+    return !(s1 == s2);
+}
+
+/*
+Make File at Filename
+*/
 bool MakeFile(std::string Filename)
 {
     std::fstream f;
@@ -184,6 +214,9 @@ bool MakeFile(std::string Filename)
     return true;
 }
 
+/*
+Get current time UTC
+*/
 TIME_ GetTimeNow()
 {
     time_t Cur = time(0);
@@ -200,6 +233,9 @@ TIME_ GetTimeNow()
     return ret;
 }
 
+/*
+Parse a string into a vector based on a character delimiter
+*/
 std::vector<std::string> ParseStrList(std::string list, const char* delim)
 {
     std::vector<std::string> ret;
