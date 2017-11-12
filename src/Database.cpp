@@ -139,18 +139,39 @@ std::vector<DBASE_ENTRY> SaveToDB(std::string Location, std::string DBK_Location
         if (dbk.back().TimeVal - dbk.front().TimeVal > History)
         {//FIXME This doesn't actually work;
             printf("HISTORY EXCEEDS\n");
-            DBASE_ENTRY NewVal = dbk.front();
-            NewVal.TimeVal = entry.DateTimeZulu;
             //Overwrite oldest entry;
-            dbk[0] = NewVal;
+            if (entry.DateTimeZulu != dbk.back().TimeVal) //NB: Refresh time is handled externally;
+            {//Check for overlap and write if necessary;
+                TFSTATS LastVal;
+                f.seekp(dbk.back().SeekPos);
+                f.read((char*)&LastVal,sizeof(TFSTATS));
+                printf("Last: %ld,%ld,%ld,%ld\n",LastVal.Statlist.b_rcv,LastVal.Statlist.pk_rcv,LastVal.Statlist.b_tx,LastVal.Statlist.pk_tx);
+                printf("NEW: %ld,%ld,%ld,%ld\n",entry.Statlist.b_rcv,entry.Statlist.pk_rcv,entry.Statlist.b_tx,entry.Statlist.pk_tx);
+                
+                if (SaveAll || LastVal.Statlist != entry.Statlist)
+                {
+                    if (DEBUG)
+                        printf("NEW DATA: Saving to file\n");
+                    dbk[0].TimeVal = entry.DateTimeZulu; //Overwrite key time loc
+        
+                    f.seekp(dbk[0].SeekPos); //Overwrite dbase entry
+                    f.write((char*)&entry,sizeof(TFSTATS));
+                }
+                else if (DEBUG)
+                    printf("DEBUG: Not saving history due to stat overlap\n");
+            }
+            else
+                if (DEBUG)
+                    printf("DEBUG: Not saving history due to time overlap.\n");
 
-            f.seekp(NewVal.SeekPos);
-            f.write((char*)&entry,sizeof(TFSTATS));
+            //dbk[0] = NewVal;
+
+            //f.seekp(NewVal.SeekPos);
+            //f.write((char*)&entry,sizeof(TFSTATS));
         }
         else
         {
             printf("History not exceeded\n");
-            //TODO: if not writing repeat data, overwrite value.  Also: ensure time values do not overlap.
             if (entry.DateTimeZulu != dbk.back().TimeVal)
             {
                 TFSTATS LastVal;
