@@ -240,32 +240,6 @@ bool ParseArgs(int argc, char** argv)
 }
 
 /*
-CheckStrValues
-*/
-bool CheckStrValues(const char* str, char val_low, char val_hi) //TODO: ->Common.hpp
-{
-    int j = 0;
-    while (str[j] != NULL)
-    {
-        if (str[j] < val_low || str[j] > val_hi)
-            return false;
-        j += 1;
-        if (j < 0)
-            return false; //too long to check;
-    }
-    return true;
-}
-
-/*
-RefreshWait
-*/
-void RefreshWait() //TODO: ->Common.hpp
-{
-    timespec TS = REFRESH;
-    clock_nanosleep(CLOCK_MONOTONIC,0,&TS,NULL);
-}
-
-/*
 ReadCFG
 */
 void ReadCFG(const char* FNAME)
@@ -368,42 +342,4 @@ void ReadCFG(const char* FNAME)
     if (IFaceList.size() < 1)
         IFaceList.push_back("all");
     f.close();
-}
-
-/*
-GetLine
-*/
-std::string GetLine(std::fstream& f,char* delim = NULL) //TODO: ->Common.hpp
-{
-    std::string ret;
-    char Buffer = f.get();
-    bool LOOP = true;
-
-    if (delim != NULL) //check for delimiter
-    {
-        int i = 0;
-        while (delim[i] != '\0')
-        {
-            if (Buffer == delim[i])
-                LOOP = false;
-            i++;
-        }
-    }
-
-    while (f.good() && Buffer != EOF && LOOP) //TODO: more reliable
-    {
-        ret += Buffer;
-        Buffer = f.get();
-        if (delim != NULL) //check for delimiter
-        {
-            int i = 0;
-            while (delim[i] != '\0')
-            {
-                if (Buffer == delim[i])
-                    LOOP = false;
-                i++;
-            }
-        }
-    }
-    return ret;
 }

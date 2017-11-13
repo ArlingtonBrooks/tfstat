@@ -47,12 +47,4 @@ bool ReadNetStat();
 
 #endif
 
-/*
-FindInString
-Searches for a string within another string
-Accepts: null terminated string to search, null terminated string to find, whether they need to exactly match, list of characters (delim)
-Returns: integer location in the stringtosearch where the stringtofind is located
-*/
-int FindInString(const char* stringtosearch, const char* stringtofind, bool ExactMatch, const char* ignores);
-
 #endif

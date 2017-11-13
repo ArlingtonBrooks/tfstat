@@ -138,4 +138,36 @@ Returns: vector of strings representing the string values before the delimiter
 */
 std::vector<std::string> ParseStrList(std::string list, const char* delim);
 
+/*
+CheckStrValues
+Checks a null-terminated string to ensure the contained characters are within a range from val_low to val_hi
+Accepts: null terminated string, low character value, high character value
+Returns: true if values are within limits, false if string is too long or if values are outside limits
+*/
+bool CheckStrValues(const char* str, char val_low, char val_hi);
+
+/*
+RefreshWait
+Sleeps for the period defined by the REFRESH period
+Accepts: nothing;
+Returns: nothing after waiting for REFRESH time
+*/
+void RefreshWait();
+
+/*
+GetLine
+Captures line from a file stream based on a delimiting character (or newline, or EOF, or null character)
+Accepts: file stream f, null-terminated character delimiter
+Returns: String captured between file stream iterator location and delim value
+*/
+std::string GetLine(std::fstream& f,char* delim);
+
+/*
+FindInString
+Searches for a string within another string
+Accepts: null terminated string to search, null terminated string to find, whether they need to exactly match, list of characters (delim)
+Returns: integer location in the stringtosearch where the stringtofind is located
+*/
+int FindInString(const char* stringtosearch, const char* stringtofind, bool ExactMatch, const char* ignores);
+
 #endif

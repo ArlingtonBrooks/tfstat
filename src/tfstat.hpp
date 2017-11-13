@@ -44,26 +44,7 @@ bool SetProcLock(bool state);
  * -p INTERFACE: dump all information from INTERFACE in CSV format
  * To Be cont'd
 */
-bool ParseArgs(int argc, char** argv);
-
-/*
-CheckStrValues
-Checks a null-terminated string to ensure the contained characters are within a range from val_low to val_hi
-Accepts: null terminated string, low character value, high character value
-Returns: true if values are within limits, false if string is too long or if values are outside limits
-*/
-bool CheckStrValues(const char* str, char val_low, char val_hi);
-
-
-//TIME_ GetTimeNow(); //src/Common
-
-/*
-RefreshWait
-Sleeps for the period defined by the REFRESH period
-Accepts: nothing;
-Returns: nothing after waiting for REFRESH time
-*/
-void RefreshWait();
+bool ParseArgs(int argc, char** argv); //FIXME: compile error re: CheckStrValues
 
 /*
 ReadCFG
@@ -72,16 +53,5 @@ Accepts: config file name, FNAME;
 Returns: nothing after attempting to set global variables
 */
 void ReadCFG(const char*);
-
-/*
-GetLine
-Captures line from a file stream based on a delimiting character (or newline, or EOF, or null character)
-Accepts: file stream f, null-terminated character delimiter
-Returns: String captured between file stream iterator location and delim value
-*/
-std::string GetLine(std::fstream& f,char* delim);
-
-//bool LoadDB(std::string Location, std::vector<TFSTATS> *DB);
-//bool SaveDB(std::string Location, std::vector<TFSTATS> DB);
 
 #endif

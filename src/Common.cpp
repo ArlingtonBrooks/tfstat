@@ -261,3 +261,118 @@ std::vector<std::string> ParseStrList(std::string list, const char* delim)
     ret.push_back(tmp);
     return ret;
 }
+
+/*
+CheckStrValues
+*/
+bool CheckStrValues(const char* str, char val_low, char val_hi)
+{
+    int j = 0;
+    while (str[j] != NULL)
+    {
+        if (str[j] < val_low || str[j] > val_hi)
+            return false;
+        j += 1;
+        if (j < 0)
+            return false; //too long to check;
+    }
+    return true;
+}
+
+/*
+RefreshWait
+*/
+void RefreshWait()
+{
+    timespec TS = REFRESH;
+    clock_nanosleep(CLOCK_MONOTONIC,0,&TS,NULL);
+}
+
+/*
+GetLine
+*/
+std::string GetLine(std::fstream& f,char* delim = NULL)
+{
+    std::string ret;
+    char Buffer = f.get();
+    bool LOOP = true;
+
+    if (delim != NULL) //check for delimiter
+    {
+        int i = 0;
+        while (delim[i] != '\0')
+        {
+            if (Buffer == delim[i])
+                LOOP = false;
+            i++;
+        }
+    }
+
+    while (f.good() && Buffer != EOF && LOOP) //TODO: more reliable
+    {
+        ret += Buffer;
+        Buffer = f.get();
+        if (delim != NULL) //check for delimiter
+        {
+            int i = 0;
+            while (delim[i] != '\0')
+            {
+                if (Buffer == delim[i])
+                    LOOP = false;
+                i++;
+            }
+        }
+    }
+    return ret;
+}
+
+/*
+FindInString
+*/
+int FindInString(const char* searchtext, const char* searchfor, bool ExactMatch, const char* ignores)
+{
+    int i = 0;
+    if (searchtext == NULL || searchfor == NULL)
+        return -1;
+    while (searchtext[i] != NULL)
+    {
+        if (searchtext[i] == searchfor[0])
+        {
+            //test the rest of the string
+            int j = 0;
+            while (searchfor[j] != NULL)
+            {
+                if (searchtext[i+j] == searchfor[j])
+                {
+                    j++;
+                    continue;
+                }
+                else
+                {
+                    i++;
+                    break;
+                }
+            }
+            if (searchfor[j] == NULL)
+            {
+                if (!ExactMatch)
+                    return i+j;
+                else
+                {
+                    int k = 0;
+                    while (ignores[k] != NULL)
+                    {
+                        if (searchtext[i+j] == ignores[k])
+                            return i+j;
+                        k++;
+                    }
+                }
+                i++;
+            }
+        }
+        else
+            i++;
+    }
+    return -1;
+}
+
