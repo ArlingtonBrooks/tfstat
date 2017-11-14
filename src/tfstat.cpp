@@ -56,7 +56,7 @@ bool SetProcLock(bool state)
             iter++;
     if (iter >= 100000000-1)
     {
-        fprintf(stderr,"Failed to lock /proc/net/dev\n");
+        fprintf(stderr,"[SetLock]: Failed to lock /proc/net/dev\n");
         return false;
     }
     PROC_NET_DEV.LOCK = state;
@@ -73,7 +73,7 @@ bool SetProcLock(bool state)
             iter++;
     if (iter >= 100000000-1)
     {
-        fprintf(stderr,"Failed to lock ifaddrs\n");
+        fprintf(stderr,"[SetLock]: Failed to lock ifaddrs\n");
         return false;
     }
     PROC_NET_DEV.LOCK = state;
@@ -90,6 +90,8 @@ int main (int argc, char** argv)
     std::vector<IFACE_STAT> Statlist;
 
     Statlist = InitIface(); //TODO: Pass IFaceList for init;
+    if (Statlist.size() == 0)
+        printf("WARNING: Statlist is null-length\n");
 //    ReadNetStat();
 //    GetState("enp2s0");
 
@@ -110,11 +112,15 @@ int main (int argc, char** argv)
     }
     while (Running)
     {
+printf("Wait...\n");
         RefreshWait();
+printf("Continue\n");
         ReadNetStat();
+printf("NetSTat read\n");
 
         for (int i = 0; i < Statlist.size(); i++)
         {
+printf("Statlist[%d]\n",i);
             if (Statlist[i].Active)
             {
                 TFSTATS st = {GetState(Statlist[i].Iface),GetTimeNow()};

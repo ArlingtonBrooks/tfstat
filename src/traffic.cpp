@@ -271,24 +271,28 @@ STATS_ GetStateDelta(STATS_ last, std::string iface)
     return ret-last;
 }
 
-std::vector<IFACE_STAT> InitIface()
+std::vector<IFACE_STAT> InitIface() //FIXME: This is initializing multiple interfaces on the case of repeats;
 {
     std::vector<IFACE_STAT> ret;
     if (!ReadNetStat())
+    {
+        printf("[InitIface]: WARNING: Null-Length interface list!\n");
         return ret;
+    }
 
     //Get list of available interfaces;
     std::vector<std::string> IfaceNames = FindInterfaces(PROC_NET_DEV.ifap);
+    if (IfaceNames.size() == 0)
+        printf("[InitIface]: FindInterfaces returned null-length string!\n");
     TIME_ tm = GetTimeNow();
     for (int i = 0; i < IfaceNames.size(); i++)
     {
         bool IsValid = false;
-        for (int j = 0; j < IFaceList.size(); j++)
+        for (int j = 0; j < IFaceList.size() && !IsValid; j++) //Originally, this 'for' loop ended MUCH sooner... Sadly, a curly brace moved while translating to BSD.
         {
             if (IFaceList[j].compare(IfaceNames[i]) == 0 || IFaceList[j].compare("all") == 0)
             {
                 IsValid = true;
-                break;
             }
             STATS_ tmp = GetState(IfaceNames[i]);
             TFSTATS tmpst;
@@ -319,26 +323,6 @@ std::vector<IFACE_STAT> InitIface()
     }
 
     return ret;
-/*    struct ifaddrs *ipap;
-    std::vector<IFACE_STAT> ret;
-    if (!getifaddrs(&ipap))
-    {
-        printf("Error: failed to load interfaces\n");
-        return ret;
-    }
-    int i = 0;
-    while (ipap[i].ifa_next != NULL)
-    {
-        IFACE_STAT tmp;
-        tmp.Iface = std::string(ipap[i].ifa_name);
-        struct if_data ifd; //ifd will contain stats which we need;
-        &ifd = ipap[i].ifa_data;
-        
-        ret.push_back(tmp);
-        i++;
-    }
-    
-    freeifaddrs(ipap);*/
 }
 
 bool ReadNetStat()
@@ -351,10 +335,13 @@ bool ReadNetStat()
     }
 
     //Free Interfaces
-    freeifaddrs(PROC_NET_DEV.ifap);
-    if (!getifaddrs(&PROC_NET_DEV.ifap))
+    if (PROC_NET_DEV.ifap != NULL)
+        freeifaddrs(PROC_NET_DEV.ifap);
+
+    if (getifaddrs(&PROC_NET_DEV.ifap) != 0)
     {
-        printf("Failed to read interfaces\n");
+        perror("[getifaddrs]: Failed to read network interfaces");
+        SetProcLock(false);
         return false;
     }
 

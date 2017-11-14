@@ -20,6 +20,7 @@ extern PROCNET PROC_NET_DEV;
 //std::vector<std::string> FindInterfaces(std::string data); //In src/Traffic
 #elif defined(__FreeBSD__) || defined(__BSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD_kernel__)
 #include <net/if.h>
+#include <ifaddrs.h>
 typedef struct {
     struct ifaddrs *ifap;
     bool LOCK;
