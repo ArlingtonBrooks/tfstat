@@ -16,6 +16,18 @@ typedef struct {
 //Linux network count file /proc/net/dev
 extern PROCNET PROC_NET_DEV;
 
+//bool ReadNetStat(); //In src/Traffic
+//std::vector<std::string> FindInterfaces(std::string data); //In src/Traffic
+#elif defined(__FreeBSD__) || defined(__BSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD_kernel__)
+#include <net/if.h>
+typedef struct {
+    struct ifaddrs *ifap;
+    bool LOCK;
+} PROCNET;
+
+extern PROCNET PROC_NET_DEV;
+#endif
+
 /*
 SetProcLock
 Sets the 'Lock' state of PROC_NET_DEV variable
@@ -23,11 +35,6 @@ Accepts: the desired state to set PROC_NET_DEV.LOCK to
 Returns: the final state of PROC_NET_DEV.LOCK
 */
 bool SetProcLock(bool state);
-
-
-//bool ReadNetStat(); //In src/Traffic
-//std::vector<std::string> FindInterfaces(std::string data); //In src/Traffic
-#endif
 
 /*
  * Parse Options

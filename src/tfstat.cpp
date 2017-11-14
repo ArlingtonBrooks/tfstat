@@ -62,6 +62,23 @@ bool SetProcLock(bool state)
     PROC_NET_DEV.LOCK = state;
     return state;
 }
+#elif defined(__FreeBSD__) || defined(__BSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD_kernel__)
+PROCNET PROC_NET_DEV = {NULL,false}; //struct ifaddrs *ifap,bool lock;
+
+bool SetProcLock(bool state)
+{
+    int iter = 0;
+    if (state == true)
+        while (PROC_NET_DEV.LOCK && iter < 100000000)
+            iter++;
+    if (iter >= 100000000-1)
+    {
+        fprintf(stderr,"Failed to lock ifaddrs\n");
+        return false;
+    }
+    PROC_NET_DEV.LOCK = state;
+    return state;
+}
 #endif
 
 int main (int argc, char** argv)

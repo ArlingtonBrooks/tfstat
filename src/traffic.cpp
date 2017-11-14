@@ -8,6 +8,7 @@
 
 #if defined(__linux__) || defined(__linux) || defined(linux)
 //Pull Data from /proc/net/dev
+//TODO: if /proc/net/dev is not avail, use /sys/class/net/[interface]/statistics/[desired stat]
 
 //Takes data as a line from /proc/net/dev;
 STATS_ GetState(std::string iface)
@@ -223,6 +224,164 @@ std::vector<std::string> FindInterfaces(std::string data)
 
     return interfaces;
 }
-#elif defined(__freebsd__)
+#elif defined(__FreeBSD__) || defined(__BSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD_kernel__)
+#include <net/if.h> //https://www.freebsd.org/cgi/man.cgi?query=ifnet&sektion=9
+#include <ifaddrs.h> //https://www.freebsd.org/cgi/man.cgi?getifaddrs
+
+STATS_ GetState(std::string iface)
+{
+    STATS_ ret;
+
+    SetProcLock(true);
+    struct if_data *ifd;
+
+    //Find interface index desired;
+    int pos = 0;
+    bool Found = false;
+    while (PROC_NET_DEV.ifap[pos].ifa_next != NULL)
+    {
+        if (iface.compare(PROC_NET_DEV.ifap[pos].ifa_name) == 0)
+        {
+            Found = true;
+            break;
+        }
+        else
+            pos++;
+    }
+    
+    if (!Found)
+    {   
+        printf("Invalid interface data passed: %s\n",iface.c_str());
+        return ret;
+    }
+    ifd = (struct if_data*)PROC_NET_DEV.ifap[pos].ifa_data;
+    ret.b_rcv = (long unsigned int)ifd->ifi_ibytes*8;
+    ret.b_tx = (long unsigned int)ifd->ifi_obytes*8;
+    ret.pk_rcv = (long unsigned int)ifd->ifi_ipackets;
+    ret.pk_tx = (long unsigned int)ifd->ifi_opackets;
+    //Read interface at index;
+    printf("DEBUG: Buffer Read %lu, %lu, %lu, %lu\n",ret.b_rcv,ret.pk_rcv,ret.b_tx,ret.pk_tx);
+    SetProcLock(false);
+    return ret;
+}
+
+STATS_ GetStateDelta(STATS_ last, std::string iface)
+{
+    STATS_ ret = GetState(iface);
+    return ret-last;
+}
+
+std::vector<IFACE_STAT> InitIface()
+{
+    std::vector<IFACE_STAT> ret;
+    if (!ReadNetStat())
+        return ret;
+
+    //Get list of available interfaces;
+    std::vector<std::string> IfaceNames = FindInterfaces(PROC_NET_DEV.ifap);
+    TIME_ tm = GetTimeNow();
+    for (int i = 0; i < IfaceNames.size(); i++)
+    {
+        bool IsValid = false;
+        for (int j = 0; j < IFaceList.size(); j++)
+        {
+            if (IFaceList[j].compare(IfaceNames[i]) == 0 || IFaceList[j].compare("all") == 0)
+            {
+                IsValid = true;
+                break;
+            }
+            STATS_ tmp = GetState(IfaceNames[i]);
+            TFSTATS tmpst;
+            IFACE_STAT tmpstat;
+
+            tmpst.Statlist = tmp;
+            tmpst.DateTimeZulu = tm;
+
+            tmpstat.Data = tmpst;
+            tmpstat.Iface = IfaceNames[i];
+            tmpstat.Active = IsValid;
+
+            ret.push_back(tmpstat);
+        }
+        if (ret.size() > IFaceList.size() && IFaceList[0].compare("all") != 0)
+        {
+            for (int i = 0; i < IFaceList.size(); i++)
+            {
+                for (int j = 0; j < ret.size(); j++)
+                {
+                    if (ret[j].Iface.compare(IFaceList[i]) == 0)
+                        break;
+                    if (j == ret.size()-1)
+                        fprintf(stderr,"WARNING: Unable to open interface '%s'\n",IFaceList[i].c_str());
+                }
+            }
+        }
+    }
+
+    return ret;
+/*    struct ifaddrs *ipap;
+    std::vector<IFACE_STAT> ret;
+    if (!getifaddrs(&ipap))
+    {
+        printf("Error: failed to load interfaces\n");
+        return ret;
+    }
+    int i = 0;
+    while (ipap[i].ifa_next != NULL)
+    {
+        IFACE_STAT tmp;
+        tmp.Iface = std::string(ipap[i].ifa_name);
+        struct if_data ifd; //ifd will contain stats which we need;
+        &ifd = ipap[i].ifa_data;
+        
+        ret.push_back(tmp);
+        i++;
+    }
+    
+    freeifaddrs(ipap);*/
+}
+
+bool ReadNetStat()
+{
+    //Read from if_data;
+    if (!SetProcLock(true))
+    {
+        printf("Failed to set lock!\n");
+        return false;
+    }
+
+    //Free Interfaces
+    freeifaddrs(PROC_NET_DEV.ifap);
+    if (!getifaddrs(&PROC_NET_DEV.ifap))
+    {
+        printf("Failed to read interfaces\n");
+        return false;
+    }
+
+    SetProcLock(false);
+    return true;
+}
+
+std::vector<std::string> FindInterfaces(struct ifaddrs *ifap)
+{
+    if (DEBUG)
+        fprintf(stderr,"Scanning for interfaces...\n");
+
+    int i = 0;
+    std::vector<std::string> interfaces;
+    while (ifap[i].ifa_next != NULL)
+    {
+        std::string tmp;
+        tmp = std::string(ifap[i].ifa_name);
+        interfaces.push_back(tmp);
+        i++;
+    }
+
+    if (DEBUG)
+        fprintf(stderr,"Found %d interfaces\n",interfaces.size());
+
+    return interfaces;
+}
+
 
 #endif
