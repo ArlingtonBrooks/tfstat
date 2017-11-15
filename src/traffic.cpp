@@ -240,7 +240,7 @@ STATS_ GetState(std::string iface)
     bool Found = false;
     while (PROC_NET_DEV.ifap[pos].ifa_next != NULL)
     {
-        if (iface.compare(PROC_NET_DEV.ifap[pos].ifa_name) == 0)
+        if (iface.compare(PROC_NET_DEV.ifap[pos].ifa_name) == 0 && PROC_NET_DEV.ifap[pos].ifa_addr->sa_family == AF_LINK)
         {
             Found = true;
             break;
@@ -255,8 +255,8 @@ STATS_ GetState(std::string iface)
         return ret;
     }
     ifd = (struct if_data*)PROC_NET_DEV.ifap[pos].ifa_data;
-    ret.b_rcv = (long unsigned int)ifd->ifi_ibytes*8;
-    ret.b_tx = (long unsigned int)ifd->ifi_obytes*8;
+    ret.b_rcv = (long unsigned int)ifd->ifi_ibytes;
+    ret.b_tx = (long unsigned int)ifd->ifi_obytes;
     ret.pk_rcv = (long unsigned int)ifd->ifi_ipackets;
     ret.pk_tx = (long unsigned int)ifd->ifi_opackets;
     //Read interface at index;
@@ -356,11 +356,14 @@ std::vector<std::string> FindInterfaces(struct ifaddrs *ifap)
 
     int i = 0;
     std::vector<std::string> interfaces;
-    while (ifap[i].ifa_next != NULL)
+    while (ifap[i].ifa_next != NULL && ifap[i].ifa_addr->sa_family == AF_LINK)
     {
-        std::string tmp;
-        tmp = std::string(ifap[i].ifa_name);
-        interfaces.push_back(tmp);
+        if (ifap[i].ifa_addr->sa_family == AF_LINK)
+        {
+            std::string tmp;
+            tmp = std::string(ifap[i].ifa_name);
+            interfaces.push_back(tmp);
+        }
         i++;
     }
 
