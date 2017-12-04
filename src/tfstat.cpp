@@ -87,9 +87,12 @@ int main (int argc, char** argv)
     ReadCFG(CFGFILE);
     ParseArgs(argc,argv);
     bool Running = true;
+//    std::vector<IFACE_STAT> Statlist;
+    //std::vector<IFACE_STAT> Statlist_Deltas;
     std::vector<IFACE_STAT> Statlist;
 
     Statlist = InitIface(); //TODO: Pass IFaceList for init;
+//    Statlist = Statlist;
     if (Statlist.size() == 0)
         printf("WARNING: Statlist is null-length\n");
 //    ReadNetStat();
@@ -101,7 +104,7 @@ int main (int argc, char** argv)
     SetExitHandler(SIGTERM);
     SetExitHandler(SIGINT);
     SetExitHandler(SIGQUIT);
-    //DumpDatabase("tfstat.dbenp2s0.db");
+    DumpDatabase("tfstat.dbenp2s0.db");
     //DumpDatabase("tfstat.dblo.db");
     //DumpKeys("tfstat.dbenp2s0.tbl");
     
@@ -123,18 +126,20 @@ printf("NetSTat read\n");
 printf("Statlist[%d]\n",i);
             if (Statlist[i].Active)
             {
-                TFSTATS st = {GetState(Statlist[i].Iface),GetTimeNow()};
+                TFSTATS st = {GetDeltaState(Statlist[i].Data.Statlist,Statlist[i].Iface),GetTimeNow()}; //returns delta state;
                 if (Databases[i].size() > 0)
                 {
                     if (st.DateTimeZulu - Statlist[i].Data.DateTimeZulu >= Delta)
                     {
-                        Statlist[i].Data.DateTimeZulu = st.DateTimeZulu;
+                        //Statlist[i].Data.DateTimeZulu = st.DateTimeZulu;
+                        Statlist[i].Data = Statlist[i].Data + st;
                         Databases[i] = SaveToDB(Base_Dir + Base_DBase_Loc + Statlist[i].Iface + DBase_Ext,Base_Dir + Base_DBase_Loc + Statlist[i].Iface + DBase_Key_Ext,st,Databases[i]);
                     }
                 }
                 else
 {
-                    Statlist[i].Data.DateTimeZulu = st.DateTimeZulu;
+                    //Statlist[i].Data.DateTimeZulu = st.DateTimeZulu;
+                    Statlist[i].Data = st;
 printf("DBS: %d\n",Databases[i].size());
                     Databases[i] = SaveToDB(Base_Dir + Base_DBase_Loc + Statlist[i].Iface + DBase_Ext,Base_Dir + Base_DBase_Loc + Statlist[i].Iface + DBase_Key_Ext,st,Databases[i]);
 }
@@ -149,8 +154,8 @@ printf("DBS: %d\n",Databases[i].size());
     {
         if (Statlist[i].Active)
         {
-            TFSTATS st = {GetState(Statlist[i].Iface),GetTimeNow()};
-            if (Databases.size() > 0)
+            TFSTATS st = {GetDeltaState(Statlist[i].Data.Statlist,Statlist[i].Iface),GetTimeNow()}; //returns delta state
+            if (Databases.size() > 0 && st.DateTimeZulu != Statlist[i].Data.DateTimeZulu)
             {
                 Databases[i] = SaveToDB(Base_Dir + Base_DBase_Loc + Statlist[i].Iface + DBase_Ext,Base_Dir + Base_DBase_Loc + Statlist[i].Iface + DBase_Key_Ext,st,Databases[i]);
             }

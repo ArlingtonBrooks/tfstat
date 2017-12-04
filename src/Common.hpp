@@ -84,10 +84,20 @@ Returns subtraction
 inline STATS_ operator-(const STATS_ &b, const STATS_ &a)
 {
     STATS_ TMP;
-    TMP.b_rcv = a.b_rcv - b.b_rcv;
-    TMP.b_tx = a.b_tx - b.b_tx;
-    TMP.pk_rcv = a.pk_rcv - b.pk_rcv;
-    TMP.pk_tx = a.pk_tx - b.pk_tx;
+    TMP.b_rcv = b.b_rcv - a.b_rcv;
+    TMP.b_tx = b.b_tx - a.b_tx;
+    TMP.pk_rcv = b.pk_rcv - a.pk_rcv;
+    TMP.pk_tx = b.pk_tx - a.pk_tx;
+    return TMP;
+}
+
+inline STATS_ operator+(const STATS_ &b, const STATS_ &a)
+{
+    STATS_ TMP;
+    TMP.b_rcv = b.b_rcv + a.b_rcv;
+    TMP.b_tx = b.b_tx + a.b_tx;
+    TMP.pk_rcv = b.pk_rcv + a.pk_rcv;
+    TMP.pk_tx = b.pk_tx + a.pk_tx;
     return TMP;
 }
 
@@ -106,6 +116,17 @@ typedef struct {
     STATS_ Statlist;
     TIME_ DateTimeZulu;
 } TFSTATS;
+
+inline TFSTATS operator+(const TFSTATS &a, const TFSTATS &b)
+{
+    TFSTATS ret;
+    ret.Statlist = a.Statlist + b.Statlist;
+    if (a.DateTimeZulu > b.DateTimeZulu)
+        ret.DateTimeZulu = a.DateTimeZulu;
+    else
+        ret.DateTimeZulu = b.DateTimeZulu;
+    return ret;
+}
 
 /*
 IFACE_STAT Container

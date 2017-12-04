@@ -47,8 +47,8 @@ STATS_ GetState(std::string iface)
 STATS_ GetDeltaState(STATS_ Last, std::string iface)
 {
     STATS_ ret;
-    
-    SetProcLock(true);
+    ret = GetState(iface);
+/*    SetProcLock(true);
 
     std::istringstream ss(PROC_NET_DEV.str);
     char buffer[256];
@@ -70,12 +70,12 @@ STATS_ GetDeltaState(STATS_ Last, std::string iface)
         printf("Invalid interface data passed: %s\n",iface.c_str());
         return ret;
     }
-printf("BUFFER: %s\n",buffer);
+printf("BUFFER: %s\n",buffer);*/
 
     //Assumes standard /proc/net/dev format
-    sscanf(&buffer[pos+1]," %lu %lu %*d %*d %*d %*d %*d %*d %lu %lu %*d %*d %*d %*d %*d %*d ",&ret.b_rcv,&ret.pk_rcv,&ret.b_tx,&ret.pk_tx);
-    SetProcLock(false);
-printf("%d TST\n",ret.b_rcv);
+    //sscanf(&buffer[pos+1]," %lu %lu %*d %*d %*d %*d %*d %*d %lu %lu %*d %*d %*d %*d %*d %*d ",&ret.b_rcv,&ret.pk_rcv,&ret.b_tx,&ret.pk_tx);
+//    SetProcLock(false);
+printf("%d TST\n",(ret - Last).b_rcv);
     return ret - Last;
 }
 
