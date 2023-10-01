@@ -1,5 +1,5 @@
 # tfstat
-Traffic Usage Monitor (pre-alpha state)
+Traffic Usage Monitor (pre-alpha/proof-of-concept state)
 
 # Purpose
 tfstat is meant to overcome some of the shortcomings of current UNIX-based traffic monitors.  tfstat continuously stores data (at specified intervals) such that a user can recall historical network bandwidth usage.  
